@@ -16,8 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** 断点下载视频大文件 */
 - (void)downloadFromURL:(NSString *)urlString
-               progress:(void(^)(CGFloat downloadProgress))downloadProgressBlock
-             complement:(void(^)(NSString *filePath,NSError *error))completeBlock;
+               progress:(void (^)(CGFloat downloadProgress))downloadProgressBlock
+             complement:(void (^)(NSString *filePath, NSError *error))completeBlock;
 
 /** 暂停某个url的下载任务 */
 - (void)suspendTaskWithURL:(NSString *)urlString;
