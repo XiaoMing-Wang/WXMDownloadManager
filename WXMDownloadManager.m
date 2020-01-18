@@ -29,7 +29,7 @@
 
 - (void)downloadFromURL:(NSString *)urlString
                progress:(void(^)(CGFloat downloadProgress))downloadProgressBlock
-             complement:(void(^)(NSString *filePath,NSError *error))completeBlock {
+             complement:(void(^)(NSString *filePath, NSError *error))completeBlock {
     
     WXMDownloadSessionManager *sessionMan = nil;
     NSString *sessionKey = [WXMDownloadSessionManager downloadKey:urlString];
@@ -41,17 +41,19 @@
         
         [sessionMan downloadFromURL:urlString
                            progress:downloadProgressBlock
-                         complement:^(NSString *filePath, NSError *error)
-         {
+                         complement:^(NSString *filePath, NSError *error) {
+            
             if (!error) {
                 [self.sessionDictionary removeObjectForKey:sessionKey];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (completeBlock) completeBlock(filePath, nil);
                 });
-            }
+            } 
+            
         }];
         
         [sessionMan resume];
+        
     } else {
         
         /** 下载完成 */

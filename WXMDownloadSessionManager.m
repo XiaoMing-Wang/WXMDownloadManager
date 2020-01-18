@@ -41,7 +41,7 @@
 @property (nonatomic, copy) void (^downloadProgressBlock)(CGFloat progress);
 
 /** 下载完成后调用的block 返回路径 */
-@property (nonatomic, copy) void (^completeBlock)(NSString *, NSError *);
+@property (nonatomic, copy) void (^completeBlock)(NSString *filePath, NSError * error);
 
 /** 线程 */
 @property (nonatomic, strong) NSOperationQueue *queue;
@@ -55,7 +55,10 @@
     BOOL isDir = NO;
     BOOL isExists = [kFileManager fileExistsAtPath:kTargetPath isDirectory:&isDir];
     if (!isExists || !isDir) {
-        [kFileManager createDirectoryAtPath:kTargetPath withIntermediateDirectories:YES attributes:nil error:nil];
+        [kFileManager createDirectoryAtPath:kTargetPath
+                withIntermediateDirectories:YES
+                                 attributes:nil
+                                      error:nil];
     }
     NSLog(@"%@",kTargetPath);
 }
@@ -115,23 +118,22 @@
     if (!_dataTask) {
         NSError *error = nil;
         NSInteger alreadyLength = kAlreadyDownloadLength;
-        NSLog(@"______%@",self.totalDictionary[self.fileName]);
+        NSLog(@"视频总长度______%@",self.totalDictionary[self.fileName]);
         
         /** 说明已经下载完毕 */
-        if ([self.totalDictionary[self.fileName] integerValue] && [self.totalDictionary[self.fileName] integerValue] == alreadyLength) {
+        if ([self.totalDictionary[self.fileName] integerValue] &&
+            [self.totalDictionary[self.fileName] integerValue] == alreadyLength) {
             if (self.completeBlock) self.completeBlock(kDownloadFilePath, nil);
             return nil;
-            
+         
         /** 如果已经存在的文件比目标大说明下载文件错误执行删除文件重新下载 */
         } else if ([self.totalDictionary[self.fileName] integerValue] < alreadyLength) {
             [kFileManager removeItemAtPath:kDownloadFilePath error:&error];
-            self.totalDictionary[self.fileName] = @(0);
-            [self.totalDictionary writeToFile:kTotalDataLengthDictionaryPath atomically:YES];
-            
-            if (!error)  {
+            if (!error) {
                 alreadyLength = 0;
             } else {
                 NSLog(@"创建任务失败请重新开始");
+                [self setDownloadError:error];
                 return nil;
             }
         }
@@ -163,6 +165,8 @@ didReceiveResponse:(NSHTTPURLResponse *)response
     /** 获取文件的全部长度 */
     NSInteger contentLength = [response.allHeaderFields[@"Content-Length"] integerValue];
     NSInteger totalLength = contentLength + kAlreadyDownloadLength;
+    
+    /** 把总长度写入plist */
     self.totalDictionary[self.fileName] = @(totalLength);
     [self.totalDictionary writeToFile:kTotalDataLengthDictionaryPath atomically:YES];
     
@@ -245,8 +249,10 @@ didCompleteWithError:(NSError *)error {
     return _queue;
 }
 
-/** 保存视频 */
-+ (void)cacheVideo:(NSData *)data urlString:(NSString *)aString {
+/// 保存视频data到沙河  和下载在同一目录
+/// @param data data
+/// @param aString 路径
++ (void)cacheLocalVideo:(NSData *)data urlString:(NSString *)aString {
     NSString *sessionKey = [self downloadKey:aString];
     NSString *filePath = [kTargetPath stringByAppendingPathComponent:sessionKey];
     [data writeToFile:filePath atomically:YES];

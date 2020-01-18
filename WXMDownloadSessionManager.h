@@ -27,8 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** 路径转码 */
 + (NSString *)downloadKey:(NSString *)aString;
 
-/** 保存视频 */
-+ (void)cacheVideo:(NSData *)data urlString:(NSString *)aString;
+/// 保存视频data到沙河  和下载在同一目录
+/// @param data data
+/// @param aString 路径
++ (void)cacheLocalVideo:(NSData *)data urlString:(NSString *)aString;
 
 /** 继续任务 */
 - (void)resume;
