@@ -24,14 +24,12 @@
 #pragma clang diagnostic ignored"-Wimplicit-retain-self"
 - (void)setProgress:(CGFloat)progress {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _progress = progress;
-        if (_progress < 0.05) _progress = 0.05;
-        if (_progress > 1) _progress = 1;
+        _progress = MAX(0, MIN(progress, 1));
         [self setNeedsDisplay];
         self.hidden = (_progress == 0);
         if (_progress < 1 && self.alpha == 0) self.alpha = 1;
         if (_progress == 1) {
-            [UIView animateWithDuration:0.5 animations:^{ self.alpha = 0; }];
+            [UIView animateWithDuration:0.6 animations:^{ self.alpha = 0; }];
         }
     });
 }

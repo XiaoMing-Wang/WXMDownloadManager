@@ -53,11 +53,11 @@
 /** 创建缓存图片的文件夹 */
 + (void)initialize {
     BOOL isDir = NO;
-    BOOL isExists = [kFileManager fileExistsAtPath:kFriendVideoPath isDirectory:&isDir];
+    BOOL isExists = [kFileManager fileExistsAtPath:kTargetPath isDirectory:&isDir];
     if (!isExists || !isDir) {
-        [kFileManager createDirectoryAtPath:kFriendVideoPath withIntermediateDirectories:YES attributes:nil error:nil];
+        [kFileManager createDirectoryAtPath:kTargetPath withIntermediateDirectories:YES attributes:nil error:nil];
     }
-    NSLog(@"%@",kFriendVideoPath);
+    NSLog(@"%@",kTargetPath);
 }
 
 - (void)downloadFromURL:(NSString *)urlString
@@ -121,12 +121,16 @@
         if ([self.totalDictionary[self.fileName] integerValue] && [self.totalDictionary[self.fileName] integerValue] == alreadyLength) {
             if (self.completeBlock) self.completeBlock(kDownloadFilePath, nil);
             return nil;
-         
+            
         /** 如果已经存在的文件比目标大说明下载文件错误执行删除文件重新下载 */
         } else if ([self.totalDictionary[self.fileName] integerValue] < alreadyLength) {
             [kFileManager removeItemAtPath:kDownloadFilePath error:&error];
-            if (!error)  alreadyLength = 0;
-            else {
+            self.totalDictionary[self.fileName] = @(0);
+            [self.totalDictionary writeToFile:kTotalDataLengthDictionaryPath atomically:YES];
+            
+            if (!error)  {
+                alreadyLength = 0;
+            } else {
                 NSLog(@"创建任务失败请重新开始");
                 return nil;
             }
@@ -244,7 +248,7 @@ didCompleteWithError:(NSError *)error {
 /** 保存视频 */
 + (void)cacheVideo:(NSData *)data urlString:(NSString *)aString {
     NSString *sessionKey = [self downloadKey:aString];
-    NSString *filePath = [kFriendVideoPath stringByAppendingPathComponent:sessionKey];
+    NSString *filePath = [kTargetPath stringByAppendingPathComponent:sessionKey];
     [data writeToFile:filePath atomically:YES];
     
     WXMDownloadSessionManager *manager = [WXMDownloadSessionManager new];

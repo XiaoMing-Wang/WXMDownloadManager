@@ -17,19 +17,19 @@
 NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject
 
 /** file缓存文件夹 */
-#define kFriendPath \
-[kLibraryboxPath stringByAppendingPathComponent:@"_FILE_CACHE_"]
+#define kFilePath \
+[kLibraryboxPath stringByAppendingPathComponent:@"FILE_CACHE"]
 
 /** file->视频文件夹 */
-#define kFriendVideoPath \
-[kFriendPath stringByAppendingPathComponent:@"VIDEOS"]
+#define kTargetPath \
+[kFilePath stringByAppendingPathComponent:@"WXMVideos"]
 
 /**文件存放路径*/
-#define kDownloadFilePath [kFriendVideoPath stringByAppendingPathComponent:self.fileName]
+#define kDownloadFilePath [kTargetPath stringByAppendingPathComponent:self.fileName]
 
 /**文件总长度字典存放的路径*/
 #define kTotalDataLengthDictionaryPath \
-[kFriendVideoPath stringByAppendingPathComponent:@"totalDataLengththDictionaryPath.plist"]
+[kTargetPath stringByAppendingPathComponent:@"totalDataLengththDictionaryPath.plist"]
 
 /**已经下载的文件长度 */
 #define kAlreadyDownloadLength \
